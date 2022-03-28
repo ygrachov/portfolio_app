@@ -1,0 +1,70 @@
+{% extends 'app/base.html' %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% block head %}
+<style>
+    .overlay{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%
+    height:100%;
+    z-index:10;
+    display:none;
+    background-color:rgba(0,0,0,0.5);
+    }
+</style>
+{% endblock %}
+{% block content %}
+
+<p class="text-dark text-capitalize font-weight-bold mt-3">
+ {{ forum.title }} <span style="font-size:0.8em; font-weight:normal;">(created by
+ {{forum.owner}} {{forum.created_at|naturaltime}})</span></p>
+
+<p>{{ forum.text }}</p>
+
+{% if forum.content_type %}
+<p class="font-italic" style="font-size:0.8em">(You can see the full scrin picture by clicking it)</p>
+
+<div id="overlay" class="overlay w-100 h-100" style="margin-top:3%; text-align:center; "
+onclick="document.getElementById('overlay').style.display='none';
+document.getElementById('main').style.display='block';">
+ <img src="{% url 'app:pic_picture' forum.id %}">
+</div>
+
+<div id="main" >
+<img src="{% url 'app:pic_picture' forum.id %}" style="margin-left:0; width:20%; margin-top:1%"
+onclick="document.getElementById('main').style.display='none';
+document.getElementById('overlay').style.display='block';">
+</div>
+{% endif %}
+
+{% if user.is_authenticated %}
+<p><form method="post" action="{% url 'app:forum_comment_create' forum.id %}"
+         style="width:40%; display:block; margin-top:3%">
+    {% csrf_token %}
+    {{ comment_form|crispy}}
+ <p><input type="submit" value="Comment"></p>
+</form></p>
+    {% endif %}
+<p class="m-5 font-weight-bold">COMMENTS:</p>
+{% if comments %}
+{% for comment in comments %}
+    <ul>
+       <li style="display:block;">
+            {{ comment.comment }} <span style="font-size:0.8em;">( added {{comment.updated_at|naturaltime }}
+        by {{comment.commenter}})</span>
+            {% if user == comment.commenter %}
+            <a role="button" style='border:solid 1px; border-radius:5%; padding:2px;color:black;'
+               href="{% url 'app:forum_comment_edit' comment.id %}">Update</a>
+            <a role="button" style='border:solid 1px; border-radius:5%; padding:2px;color:black;'
+               href="{% url 'app:delete_comment' comment.id %}">Delete</a><br>
+            {% endif %}
+            </li>
+    </ul>
+{% endfor %}
+{% else %}
+<h3>There are no comments </h3><br>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends 'app/base.html' %}
+{% block head %}
+<script>
+    function favPost(url, forum_id) {
+           fetch(url, {
+           method: "POST",
+           mode: "cors",
+           cache: "no-cache",
+           credentials: "same-origin",
+           headers:{
+           "Content-Type": "application/x-www-form-urlencoded",
+           },
+           redirect: "follow",
+           referrer: "no-referrer",
+           }).then(function(data) {
+           console.log(data, 'finished');
+           $("#not_favorite_star_"+ forum_id).toggle();
+           $("#favorite_star_"+ forum_id).toggle();
+           }).catch(function() {
+           console.log(url, 'error');
+           })
+    }
+</script>
+{% endblock %}
+{% block content %}
+{% if forum_list %}
+{% for forum in forum_list %}
+<ul class="list-group">
+    <li><p class="list-group-item list-group-item-action active bg-warning" >
+        <a class="text-dark text-capitalize font-weight-bold"
+           href="{% url 'app:forum_details' forum.id %}">{{forum.title}}</a>
+        {% if forum.owner == user %}
+        <a class="text-dark font-italic" href="{% url 'app:update_forum' forum.id %}">
+            update|</a><a class="text-dark font-italic" href="{% url 'app:delete_forum' forum.id %}">delete</a>
+        {% endif %}
+        {% if user.is_authenticated %}
+
+        <a href="#" onclick=
+                "favPost('{% url 'app:forum_unfavorite' forum.id %}', {{ forum.id }}); return false;"
+        {% if forum.id not in favorites %} style="display:none;" {% endif %}
+           id="favorite_star_{{ forum.id }}">
+                <span class="font-weight-bold" style="font-size:0.8em">Make unfavorite</span>
+        </a>
+
+         <a href="#" onclick=
+                "favPost('{% url 'app:forum_favorite' forum.id %}', {{ forum.id }}); return false;"
+          {% if forum.id in favorites %} style="display:none;" {% endif %}
+           id="not_favorite_star_{{ forum.id }}">
+             <span class="font-weight-bold" style="font-size:0.8em">Make favorite</span>
+        </a>
+        {% endif %}
+    </p>
+    <p class="list-group-item">{{forum.text}}</p>
+    <p class="mt-2">created by {{forum.owner}}</p>
+        <p>last update: {{forum.updated_at}}</p>
+    </li>
+</ul>
+{% endfor %}
+{% else %}
+<p class="font-weight-bold mt-5">There are no records found</p>
+{% endif %}
+{% if user.is_authenticated %}
+<p>You may create a new forum:</p>
+<a role= 'button' style='border:solid 1px; padding:1px; border-radius:5%; color:black;'
+   href="{% url 'app:create_forum' %}">Create a new forum</a>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'app/base.html' %}
+{% block content %}
+{% if user.is_authenticated %}
+<p class="m-5 font-weight-bold">Are you going permanently delete forum
+    <span class="text-uppercase">"{{object.title}}"?</span></p>
+<form class="m-5" method="post">
+    {% csrf_token %}
+    <input type="submit" value="Yes, delete">
+    <input type="button" value="Cancel"
+           onclick="window.location.href='{% url 'app:main' %}'">
+</form>
+{% endif %}
+{% endblock %}

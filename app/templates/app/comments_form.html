@@ -1,0 +1,15 @@
+{% extends 'app/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% if user == object.commenter %}
+<form  class="m-5" method="post">
+    {% csrf_token %}
+    {{form|crispy}}
+    <input type="submit" value="Edit">
+    <input type="button" value="Cancel"
+           onclick="window.location.href='{% url 'app:forum_details' object.forum_id %}'">
+
+
+</form>
+{% endif %}
+{% endblock %}
